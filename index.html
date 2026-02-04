@@ -54,7 +54,7 @@
 
 <body>
 
-  <!-- START: Your exact Minion -->
+  <!-- START: Your Minion -->
   <img
     src="./minion.gif"
     alt="Minion Love"
@@ -88,6 +88,7 @@
     const noBtn = document.getElementById("noBtn");
     const yesBtn = document.getElementById("yesBtn");
 
+    // NO button behavior
     noBtn.addEventListener("click", () => {
       clickCount++;
 
@@ -105,6 +106,7 @@
       }
     });
 
+    // Confetti animation
     function launchConfetti(duration = 5500) {
       const canvas = document.getElementById("confetti");
       const ctx = canvas.getContext("2d");
@@ -168,6 +170,7 @@
       requestAnimationFrame(frame);
     }
 
+    // YES button = final screen
     yesBtn.addEventListener("click", () => {
       document.body.innerHTML = `
         <canvas id="confetti"></canvas>
@@ -175,9 +178,9 @@
         <h1>YAYYYYY 💕🥰</h1>
         <p>I can’t wait to marry you, babe 💍❤️</p>
 
-        <!-- END: Cat kiss -->
+        <!-- END: Your Cat -->
         <img
-          src="https://www.cat-gifs.com/wp-content/uploads/2021/05/cat-kiss.gif"
+          src="./cat.gif"
           style="width:260px;margin-top:20px;"
           alt="Kissing Cat"
         />
