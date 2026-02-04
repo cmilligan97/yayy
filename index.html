@@ -6,187 +6,353 @@
   <title>Valentine?</title>
 
   <style>
-    body {
+    body{
       font-family: Arial, sans-serif;
-      text-align: center;
-      background: #fff;
-      padding-top: 40px;
-      overflow: hidden;
+      text-align:center;
+      background:#fff;
+      padding-top:40px;
+      overflow:hidden;
+      margin:0;
     }
 
-    img {
-      width: 220px;
-      margin-bottom: 20px;
+    img{ width:220px; margin-bottom:20px; }
+    h2{ margin-bottom:25px; }
+
+    button{
+      font-size:18px;
+      padding:14px 28px;
+      margin:10px;
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      transition:transform .25s ease;
+      white-space:nowrap;
     }
 
-    h2 {
-      margin-bottom: 25px;
+    #yesBtn{ background:#ff4d6d; color:#fff; }
+    #noBtn{ background:#ddd; }
+
+    canvas{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:9999;
     }
 
-    button {
-      font-size: 18px;
-      padding: 14px 28px;
-      margin: 10px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: transform 0.25s ease;
-      white-space: nowrap;
+    /* ---------------- Loading screen ---------------- */
+    #loadingScreen{
+      position:fixed;
+      inset:0;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      z-index:10000;
+      padding:24px;
     }
 
-    #yesBtn {
-      background-color: #ff4d6d;
-      color: white;
+    #loadingTitle{
+      font-size:22px;
+      margin:0 0 14px 0;
     }
 
-    #noBtn {
-      background-color: #ddd;
+    #loadingSub{
+      margin:0 0 18px 0;
+      opacity:.7;
+      font-size:14px;
     }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 9999;
+    .barWrap{
+      width:min(320px, 80vw);
+      height:12px;
+      background:#f1f1f1;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .barFill{
+      height:100%;
+      width:0%;
+      background:#ff4d6d;
+      border-radius:999px;
+      transition:width .12s linear;
+    }
+
+    .dots{
+      margin-top:14px;
+      opacity:.75;
+      font-size:18px;
+      letter-spacing:2px;
+    }
+
+    #app{ display:none; }
+
+    /* ---------------- Secret button ---------------- */
+    #secretBtn{
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      width:44px;
+      height:44px;
+      border-radius:999px;
+      border:none;
+      background:#fff;
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
+      cursor:pointer;
+      font-size:20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9000;
+      transform:scale(1);
+      transition:transform .15s ease;
+      opacity:.9;
+    }
+    #secretBtn:active{ transform:scale(.92); }
+
+    /* ---------------- Secret modal ---------------- */
+    #secretOverlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.25);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9500;
+      padding:18px;
+    }
+
+    #secretCard{
+      background:#fff;
+      border-radius:18px;
+      padding:18px 18px 14px;
+      width:min(360px, 92vw);
+      box-shadow:0 14px 40px rgba(0,0,0,.22);
+      text-align:center;
+      transform:translateY(10px);
+      animation:pop .18s ease forwards;
+    }
+
+    @keyframes pop{
+      to{ transform:translateY(0); }
+    }
+
+    #secretCard h3{
+      margin:0 0 8px 0;
+      font-size:20px;
+    }
+    #secretCard p{
+      margin:0 0 12px 0;
+      opacity:.8;
+    }
+
+    #closeSecret{
+      font-size:14px;
+      padding:10px 16px;
+      border-radius:12px;
+      border:none;
+      background:#ff4d6d;
+      color:#fff;
+      cursor:pointer;
+    }
+
+    .spark{
+      position:fixed;
+      font-size:18px;
+      pointer-events:none;
+      z-index:9600;
+      animation:sparkUp 900ms ease-out forwards;
+    }
+    @keyframes sparkUp{
+      0%{ transform:translateY(0) scale(1); opacity:0; }
+      10%{ opacity:1; }
+      100%{ transform:translateY(-60px) scale(1.2); opacity:0; }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- START: Your Minion -->
-  <img
-    src="./minion.gif"
-    alt="Minion Love"
-  />
+  <!-- Loading overlay -->
+  <div id="loadingScreen">
+    <p id="loadingTitle">Loading your Valentine… 💘</p>
+    <p id="loadingSub">Please wait while we prepare something cute & evil 😈</p>
+    <div class="barWrap"><div class="barFill" id="barFill"></div></div>
+    <div class="dots" id="dots">.</div>
+  </div>
 
-  <h2>Will you be my Valentine, babe? 💘</h2>
+  <!-- Main app -->
+  <div id="app">
 
-  <button id="yesBtn">Yes 💖</button>
-  <button id="noBtn">No 😐</button>
+    <img src="./minion.gif" alt="Minion Love" />
 
-  <canvas id="confetti"></canvas>
+    <h2>Will you be my Valentine, babe? 💘</h2>
+
+    <button id="yesBtn">Yes 💖</button>
+    <button id="noBtn">No 😐</button>
+
+    <canvas id="confetti"></canvas>
+
+    <button id="secretBtn" title="psst">💗</button>
+
+    <div id="secretOverlay">
+      <div id="secretCard">
+        <h3>Secret message 💌</h3>
+        <p>I love you, babe 💘</p>
+        <button id="closeSecret">okayyyy 🥹</button>
+      </div>
+    </div>
+
+  </div>
 
   <script>
-    let noScale = 1;
-    let yesScale = 1;
-    let clickCount = 0;
+    /* Loading */
+    (function(){
+      const app = document.getElementById("app");
+      const screen = document.getElementById("loadingScreen");
+      const bar = document.getElementById("barFill");
+      const dots = document.getElementById("dots");
 
-    const noTexts = [
-      "No 😐",
-      "Wrong answer",
-      "Are you sure?",
-      "Think again",
-      "C’mon 😭",
-      "You better say yes",
-      "Babeee pleaseeee 🥺",
-      "Why are you like this",
-      "Okay last chance",
-      "…yes?"
+      let p = 0, d = 1;
+
+      const dt = setInterval(()=>{
+        d = (d%3)+1;
+        dots.textContent = ".".repeat(d);
+      },250);
+
+      const bt = setInterval(()=>{
+        p += Math.random()*12+6;
+        if(p>=100) p=100;
+        bar.style.width = p+"%";
+
+        if(p===100){
+          clearInterval(bt);
+          clearInterval(dt);
+          setTimeout(()=>{
+            screen.style.display="none";
+            app.style.display="block";
+          },350);
+        }
+      },180);
+    })();
+
+    /* Valentine logic */
+    let noScale=1, yesScale=1, clickCount=0;
+
+    const noTexts=[
+      "No 😐","Wrong answer","Are you sure?","Think again","C’mon 😭",
+      "You better say yes","Babeee pleaseeee 🥺","Why are you like this",
+      "Okay last chance","…yes?"
     ];
 
-    const noBtn = document.getElementById("noBtn");
-    const yesBtn = document.getElementById("yesBtn");
+    const noBtn=document.getElementById("noBtn");
+    const yesBtn=document.getElementById("yesBtn");
 
-    // NO button behavior
-    noBtn.addEventListener("click", () => {
+    noBtn.addEventListener("click",()=>{
       clickCount++;
+      noScale-=0.08;
+      yesScale+=0.12;
 
-      noScale -= 0.08;
-      yesScale += 0.12;
+      noBtn.textContent=noTexts[Math.min(clickCount,noTexts.length-1)];
 
-      noBtn.textContent =
-        noTexts[Math.min(clickCount, noTexts.length - 1)];
+      noBtn.style.transform=`scale(${Math.max(noScale,.25)})`;
+      yesBtn.style.transform=`scale(${yesScale})`;
 
-      noBtn.style.transform = `scale(${Math.max(noScale, 0.25)})`;
-      yesBtn.style.transform = `scale(${yesScale})`;
-
-      if (clickCount >= noTexts.length - 1) {
-        noBtn.style.display = "none";
-      }
+      if(clickCount>=noTexts.length-1) noBtn.style.display="none";
     });
 
-    // Confetti animation
-    function launchConfetti(duration = 5500) {
-      const canvas = document.getElementById("confetti");
-      const ctx = canvas.getContext("2d");
+    /* Confetti */
+    function launchConfetti(d=5500){
+      const c=document.getElementById("confetti");
+      const x=c.getContext("2d");
 
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
+      function r(){c.width=innerWidth;c.height=innerHeight;}
+      r(); addEventListener("resize",r);
 
-      resize();
-      window.addEventListener("resize", resize);
-
-      const pieces = [];
-      const count = 220;
-
-      for (let i = 0; i < count; i++) {
-        pieces.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height - canvas.height,
-          r: Math.random() * 5 + 3,
-          vx: (Math.random() - 0.5) * 2,
-          vy: Math.random() * 3 + 2,
-          rot: Math.random() * Math.PI,
-          vr: (Math.random() - 0.5) * 0.2,
-          color: `hsl(${Math.random() * 360},100%,70%)`
+      const p=[];
+      for(let i=0;i<220;i++){
+        p.push({
+          x:Math.random()*c.width,
+          y:Math.random()*c.height-c.height,
+          r:Math.random()*5+3,
+          vx:(Math.random()-.5)*2,
+          vy:Math.random()*3+2,
+          rot:Math.random()*Math.PI,
+          vr:(Math.random()-.5)*.2,
+          col:`hsl(${Math.random()*360},100%,70%)`
         });
       }
 
-      const start = performance.now();
+      const s=performance.now();
 
-      function frame(now) {
-        const elapsed = now - start;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      (function f(n){
+        const e=n-s;
+        x.clearRect(0,0,c.width,c.height);
 
-        pieces.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.rot += p.vr;
+        p.forEach(o=>{
+          o.x+=o.vx; o.y+=o.vy; o.rot+=o.vr;
 
-          if (p.y > canvas.height + 20) {
-            p.y = -20;
-            p.x = Math.random() * canvas.width;
+          if(o.y>c.height+20){
+            o.y=-20; o.x=Math.random()*c.width;
           }
 
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate(p.rot);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r);
-          ctx.restore();
+          x.save();
+          x.translate(o.x,o.y);
+          x.rotate(o.rot);
+          x.fillStyle=o.col;
+          x.fillRect(-o.r,-o.r/2,o.r*2,o.r);
+          x.restore();
         });
 
-        if (elapsed < duration) {
-          requestAnimationFrame(frame);
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          window.removeEventListener("resize", resize);
+        if(e<d) requestAnimationFrame(f);
+        else{
+          x.clearRect(0,0,c.width,c.height);
+          removeEventListener("resize",r);
         }
-      }
-
-      requestAnimationFrame(frame);
+      })(performance.now());
     }
 
-    // YES button = final screen
-    yesBtn.addEventListener("click", () => {
-      document.body.innerHTML = `
+    yesBtn.addEventListener("click",()=>{
+      document.body.innerHTML=`
         <canvas id="confetti"></canvas>
 
         <h1>YAYYYYY 💕🥰</h1>
-        <p>I can’t wait to marry you, babe 💍❤️</p>
+        <p>Thank you for being my forever Valentine 💖</p>
 
-        <!-- END: Your Cat -->
-        <img
-          src="./cat.gif"
+        <img src="./cat.gif"
           style="width:260px;margin-top:20px;"
-          alt="Kissing Cat"
-        />
+          alt="Kissing Cat" />
       `;
-
       launchConfetti(5500);
+    });
+
+    /* Secret */
+    const sBtn=document.getElementById("secretBtn");
+    const sOv=document.getElementById("secretOverlay");
+    const sCl=document.getElementById("closeSecret");
+
+    function spark(x,y){
+      const h=["💖","💘","💗","💕"];
+      for(let i=0;i<10;i++){
+        const e=document.createElement("div");
+        e.className="spark";
+        e.textContent=h[Math.floor(Math.random()*h.length)];
+        e.style.left=(x+Math.random()*60-30)+"px";
+        e.style.top=(y+Math.random()*20-10)+"px";
+        document.body.appendChild(e);
+        setTimeout(()=>e.remove(),1000);
+      }
+    }
+
+    sBtn.addEventListener("click",e=>{
+      sOv.style.display="flex";
+      spark(e.clientX,e.clientY);
+    });
+
+    sCl.addEventListener("click",()=>sOv.style.display="none");
+    sOv.addEventListener("click",e=>{
+      if(e.target===sOv) sOv.style.display="none";
     });
   </script>
 
